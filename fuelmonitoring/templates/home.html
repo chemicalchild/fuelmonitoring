@@ -1,0 +1,20 @@
+{% extends "layout.html" %} {% block content%}
+ <main>
+      <section id="fuel">
+        <h2>Fuel Level</h2>
+        <p id="level">Level</p>
+        <div class="monitor">
+          <div class="indicator"></div>
+        </div>
+        <canvas id="fuelChart" width="200" height="200"></canvas>
+
+      </section>
+      <section id="gps">
+        <h2>GPS Location</h2>
+        <p>Latitude: <span id="latitude">N/A</span></p>
+        <p>Longitude: <span id="longitude">N/A</span></p>
+      </section>
+    </main>
+
+
+{% endblock %}
