@@ -17,10 +17,10 @@ def receive_data():
         data = request.json
 
         location_fuel_data = LocationFuelData(
-            latitude =data.get('latitude'),
-            longitude =data.get('longitude'),
-            altitude =data.get('altitude'),
-            fuel_level = data.get('fuel_level')
+            latitude =data.get('Latitude'),
+            longitude =data.get('Longitude'),
+            altitude =data.get('Altitude'),
+            fuel_level = data.get('TannkLevel')
         )
         db.session.add(location_fuel_data)
         db.session.commit()
