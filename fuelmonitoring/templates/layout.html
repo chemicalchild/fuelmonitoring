@@ -116,78 +116,95 @@
       </section>
     </main>
 
-    <!-- Add this script section to your HTML -->
     <script>
-      // Function to fetch data from the Flask server
-      async function fetchData() {
-        try {
-          const response = await fetch('/send_data', {
-            method: 'GET',
-          });
-          const data = await response.json();
+      const fuelChartCtx = document
+        .getElementById("fuelChart")
+        .getContext("2d");
 
-          // Update the HTML content with the fetched data
-          updateHTML(data);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      }
-
-      // Function to update HTML content with the fetched data
-      function updateHTML(data) {
-        // Update fuel chart
-        const fuelChart = new Chart(document.getElementById('fuelChart').getContext('2d'), {
-          type: 'line',
-          data: {
-            labels: data.map(entry => entry.timestamp),
-            datasets: [{
-              label: 'Fuel Level',
-              data: data.map(entry => entry.fuel_level),
-              borderColor: 'blue',
+      const fuelChart = new Chart(fuelChartCtx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Fuel Level",
+              data: [],
+              borderColor: "blue",
               fill: false,
-            }],
-          },
-          options: {
-            scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: 'Time',
-                },
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Time",
               },
-              y: {
-                title: {
-                  display: true,
-                  text: 'Fuel Level (%)',
-                },
-                beginAtZero: true,
-                min: 0,
-                max: 100,
-                ticks: {
-                  stepSize: 10,
-                },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "Fuel Level (%)",
+              },
+              beginAtZero: true,
+              min: 0,
+              max: 100, // Adjusted to 80% of the original scale
+              ticks: {
+                stepSize: 10, // Adjusted stepSize for the reduced scale
               },
             },
           },
-        });
+        },
+      });
 
-        // Update GPS data
-        const latestData = data[data.length - 1];
-        updateGPS(latestData.latitude, latestData.longitude, latestData.altitude);
+      // Function to generate random fuel level data for testing
+      function generateRandomFuelLevel() {
+        return Math.floor(Math.random() * 100);
+      }
+
+      // Update fuel level chart and monitor with random values
+      function updateFuelLevel() {
+        const newLevel = generateRandomFuelLevel();
+        const time = new Date().toLocaleTimeString();
+        const fuelData = fuelChart.data.datasets[0].data;
+        const labels = fuelChart.data.labels;
+        labels.push(time);
+        fuelData.push(newLevel);
+        if (labels.length > 10) {
+          labels.shift();
+          fuelData.shift();
+        }
+        fuelChart.update();
+
+        const monitorIndicator = document.querySelector(".indicator");
+        if (newLevel <= 20) {
+          monitorIndicator.style.backgroundColor = "red";
+        } else {
+          monitorIndicator.style.backgroundColor = "green";
+        }
+
+        // Update GPS coordinates (replace with your data source)
+        const latitude = Math.random() * 180 - 90;
+        const longitude = Math.random() * 360 - 180;
+        const altitude = Math.random() * 1000;
+
+        updateGPS(
+          latitude.toFixed(4),
+          longitude.toFixed(4),
+          altitude.toFixed(2)
+        );
       }
 
       // Update GPS coordinates
       function updateGPS(latitude, longitude, altitude) {
-        document.getElementById('latitude').textContent = latitude;
-        document.getElementById('longitude').textContent = longitude;
-        document.getElementById('altitude').textContent = altitude;
+        document.getElementById("latitude").textContent = latitude;
+        document.getElementById("longitude").textContent = longitude;
+        document.getElementById("altitude").textContent = altitude;
       }
 
-      // Fetch data and update every 5 seconds
-      setInterval(fetchData, 5000);
-
-      // Initial fetch when the page loads
-      fetchData();
+      // Update fuel and GPS data every 5 seconds
+      setInterval(updateFuelLevel, 5000);
     </script>
   </body>
 </html>
