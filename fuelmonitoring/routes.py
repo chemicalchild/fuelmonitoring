@@ -19,6 +19,7 @@ def receive_data():
         location_fuel_data = LocationFuelData(
             latitude =data.get('latitude'),
             longitude =data.get('longitude'),
+            altitude =data.get('altitude'),
             fuel_level = data.get('fuel_level')
         )
         db.session.add(location_fuel_data)
@@ -40,6 +41,7 @@ def get_data():
             data_entry = {
                 'latitude': item.latitude,
                 'longitude': item.longitude,
+                'altitude': item.altitude,
                 'fuel_level': item.fuel_level,
                 'timestamp': item.timestamp
             }
