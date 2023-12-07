@@ -1,6 +1,7 @@
-from flask import request, render_template, url_for, jsonify
+from flask import request, render_template, jsonify
 from fuelmonitoring import app, db
 from fuelmonitoring.Model import LocationFuelData
+from datetime import datetime
 
 @app.route('/')
 def home():
@@ -10,27 +11,23 @@ def home():
 def about():
     return render_template('About.html')
 
-
 @app.route('/receive_data', methods=['POST'])
 def receive_data():
     try:
         data = request.json
 
         location_fuel_data = LocationFuelData(
-            latitude =data.get('Latitude'),
-            longitude =data.get('Longitude'),
-            altitude =data.get('Altitude'),
-            fuel_level = data.get('TannkLevel')
+            latitude=data.get('Latitude'),
+            longitude=data.get('Longitude'),
+            altitude=data.get('Altitude'),
+            fuel_level=data.get('TankLevel')
         )
         db.session.add(location_fuel_data)
         db.session.commit()
-        return "Data received sucessfully", 200
+        return "Data received successfully", 200
     except Exception as e:
         return str(e), 400
 
-
-
-#This route sends the data to the front end
 @app.route('/send_data', methods=['GET'])
 def get_data():
     try:
@@ -43,11 +40,10 @@ def get_data():
                 'longitude': item.longitude,
                 'altitude': item.altitude,
                 'fuel_level': item.fuel_level,
-                'timestamp': item.timestamp
+                'timestamp': item.timestamp.strftime('%Y-%m-%d %H:%M:%S')  # format timestamp
             }
             data_list.append(data_entry)
             print(data_entry)
         return jsonify(data_list), 200
     except Exception as e:
         return str(e), 400
-
