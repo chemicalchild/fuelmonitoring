@@ -40,7 +40,7 @@ def get_data():
                 'longitude': item.longitude,
                 'altitude': item.altitude,
                 'fuel_level': item.fuel_level,
-                'timestamp': item.timestamp.strftime('%Y-%m-%d %H:%M:%S')  # format timestamp
+                'timestamp': item.timestamp.strftime('%H:%M:%S')  # format timestamp
             }
             data_list.append(data_entry)
             print(data_entry)
