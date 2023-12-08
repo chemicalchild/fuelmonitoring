@@ -112,7 +112,6 @@
         <h2>GPS Location</h2>
         <p>Latitude: <span id="latitude">N/A</span></p>
         <p>Longitude: <span id="longitude">N/A</span></p>
-        <p>Altitude: <span id="altitude">N/A</span></p>
       </section>
     </main>
 
@@ -149,58 +148,54 @@
               },
               beginAtZero: true,
               min: 0,
-              max: 100, // Adjusted to 80% of the original scale
+              max: 100,
               ticks: {
-                stepSize: 10, // Adjusted stepSize for the reduced scale
+                stepSize: 10,
               },
             },
           },
         },
       });
 
-      // Function to generate random fuel level data for testing
-      function generateRandomFuelLevel() {
-        return Math.floor(Math.random() * 100);
+      // Function to update fuel level chart and monitor with values from Flask backend
+      async function updateFuelLevel() {
+        try {
+          const response = await fetch('/send_data');
+          const data = await response.json();
+
+          // Clear existing data
+          fuelChart.data.labels = [];
+          fuelChart.data.datasets[0].data = [];
+
+          data.forEach((entry) => {
+            fuelChart.data.labels.push(entry.timestamp);
+            fuelChart.data.datasets[0].data.push(entry.fuel_level);
+          });
+
+          fuelChart.update();
+
+          const monitorIndicator = document.querySelector(".indicator");
+          const latestFuelLevel = data.length > 0 ? data[data.length - 1].fuel_level : 0;
+
+          if (latestFuelLevel <= 20) {
+            monitorIndicator.style.backgroundColor = "red";
+          } else {
+            monitorIndicator.style.backgroundColor = "green";
+          }
+
+          // Update GPS coordinates
+          const latestEntry = data.length > 0 ? data[data.length - 1] : { latitude: 'N/A', longitude: 'N/A'};
+          updateGPS(latestEntry.latitude, latestEntry.longitude);
+
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
       }
 
-      // Update fuel level chart and monitor with random values
-      function updateFuelLevel() {
-        const newLevel = generateRandomFuelLevel();
-        const time = new Date().toLocaleTimeString();
-        const fuelData = fuelChart.data.datasets[0].data;
-        const labels = fuelChart.data.labels;
-        labels.push(time);
-        fuelData.push(newLevel);
-        if (labels.length > 10) {
-          labels.shift();
-          fuelData.shift();
-        }
-        fuelChart.update();
-
-        const monitorIndicator = document.querySelector(".indicator");
-        if (newLevel <= 20) {
-          monitorIndicator.style.backgroundColor = "red";
-        } else {
-          monitorIndicator.style.backgroundColor = "green";
-        }
-
-        // Update GPS coordinates (replace with your data source)
-        const latitude = Math.random() * 180 - 90;
-        const longitude = Math.random() * 360 - 180;
-        const altitude = Math.random() * 1000;
-
-        updateGPS(
-          latitude.toFixed(4),
-          longitude.toFixed(4),
-          altitude.toFixed(2)
-        );
-      }
-
-      // Update GPS coordinates
+      // Function to update GPS coordinates
       function updateGPS(latitude, longitude, altitude) {
         document.getElementById("latitude").textContent = latitude;
         document.getElementById("longitude").textContent = longitude;
-        document.getElementById("altitude").textContent = altitude;
       }
 
       // Update fuel and GPS data every 5 seconds
